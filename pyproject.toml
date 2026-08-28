@@ -1,0 +1,22 @@
+[project]
+name = "srm-project"
+version = "0.1.0"
+description = "Deep Learning Based Super Resolution Mapping from Medium Resolution Satellite Imagery"
+requires-python = ">=3.10,<3.13"
+
+dependencies = [
+    "numpy>=1.26,<2.3",
+    "pandas>=2.2,<3.0",
+    "matplotlib>=3.8,<4.0",
+    "opencv-python>=4.9,<5.0",
+    "scikit-image>=0.23,<0.26",
+    "seaborn>=0.13,<1.0",
+    "rasterio>=1.3,<2.0",
+    "GDAL>=3.8,<3.11",
+    "torch>=2.4,<3.0",
+    "torchmetrics>=1.4,<2.0"
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
