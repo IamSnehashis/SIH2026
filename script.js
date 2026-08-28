@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
   // ---------- scroll reveal ----------
   const revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {
