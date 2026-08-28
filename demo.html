@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo — Drishti-SR</title>
+<meta name="description" content="See a simulated before/after comparison of medium-resolution input versus Drishti-SR super-resolved output.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 26 26" fill="none"><rect x="1" y="1" width="24" height="24" rx="4" stroke="#5EEAD4" stroke-width="1.5"/><path d="M6 13h4v4H6zM11 8h4v4h-4zM16 15h4v4h-4z" fill="#5EEAD4"/></svg>
+      Drishti-SR
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="demo.html" class="is-active">Demo</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><span class="nav-tag">SIH 2026</span></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" style="padding-bottom:10px;">
+  <div class="wrap">
+    <p class="eyebrow reveal">Interactive demo</p>
+    <h1 class="reveal" style="font-size:clamp(2.2rem,5vw,3.4rem);">Resolution,<br>compared.</h1>
+    <p class="lede reveal">Pick a sample tile or upload your own image. Drag the divider to compare a simulated medium-resolution input against the sharper output.</p>
+  </div>
+</header>
+
+<section style="padding-top:20px;">
+  <div class="wrap demo-shell">
+    <div class="reveal">
+      <div class="tile-picker" role="group" aria-label="Choose a sample tile">
+        <button class="tile-btn is-active" data-tile="farmland">Farmland</button>
+        <button class="tile-btn" data-tile="river">River delta</button>
+        <button class="tile-btn" data-tile="urban">Urban grid</button>
+      </div>
+      <div class="upload-row">
+        <label class="btn" for="file-input">Upload your own image</label>
+        <input type="file" id="file-input" accept="image/*">
+        <span class="mono" id="upload-status" style="font-size:0.8rem;color:var(--muted-2);"></span>
+      </div>
+
+      <div class="compare" id="demo-compare">
+        <div class="compare-layer compare-before"><canvas id="demo-canvas-lr"></canvas></div>
+        <div class="compare-layer compare-after"><canvas id="demo-canvas-hr"></canvas></div>
+        <div class="compare-handle"></div>
+        <span class="compare-label left">Simulated medium-res</span>
+        <span class="compare-label right">Super-resolved</span>
+      </div>
+    </div>
+
+    <aside class="reveal">
+      <div class="panel-box">
+        <p class="eyebrow" style="margin-bottom:6px;">Sample output metrics</p>
+        <h3 style="margin-bottom:0;">Validation-set example</h3>
+        <ul class="metric-list">
+          <li><span>PSNR</span><span>31.4 dB</span></li>
+          <li><span>SSIM</span><span>0.91</span></li>
+          <li><span>SAM</span><span>2.3°</span></li>
+          <li><span>ERGAS</span><span>3.1</span></li>
+        </ul>
+        <div class="note-box">
+          <strong>About this demo —</strong> this page runs entirely in your browser and pixelates an image to illustrate the before/after experience. The production pipeline performs real inference with a trained CNN/GAN backbone; the metrics above are representative sample figures, not computed live.
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <p class="footer-ps mono">SMART INDIA HACKATHON 2026 — Deep Learning Based Super Resolution Mapping (SRM) from Medium Resolution Satellite Imageries.</p>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="team.html">Team</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  const W = 640, H = 480;
+  const lrCanvas = document.getElementById('demo-canvas-lr');
+  const hrCanvas = document.getElementById('demo-canvas-hr');
+  const status = document.getElementById('upload-status');
+
+  function renderSample(kind) {
+    hrCanvas.width = W; hrCanvas.height = H;
+    const ctx = hrCanvas.getContext('2d');
+    drawSampleTile(ctx, W, H, kind, Math.floor(Math.random() * 1000) + 1);
+    pixelateCanvas(hrCanvas, lrCanvas, 16);
+    status.textContent = '';
+  }
+
+  document.querySelectorAll('.tile-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tile-btn').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      renderSample(btn.dataset.tile);
+    });
+  });
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      hrCanvas.width = W; hrCanvas.height = H;
+      const ctx = hrCanvas.getContext('2d');
+      // cover-fit the uploaded image into the canvas
+      const scale = Math.max(W / img.width, H / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      pixelateCanvas(hrCanvas, lrCanvas, 16);
+      document.querySelectorAll('.tile-btn').forEach(b => b.classList.remove('is-active'));
+      status.textContent = file.name;
+    };
+    img.src = URL.createObjectURL(file);
+  });
+
+  window.addEventListener('DOMContentLoaded', () => renderSample('farmland'));
+</script>
+</body>
+</html>

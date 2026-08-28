@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drishti-SR — Deep Learning Super Resolution Mapping</title>
+<meta name="description" content="Drishti-SR upscales medium-resolution satellite imagery into sharper, analysis-ready tiles using deep learning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 26 26" fill="none"><rect x="1" y="1" width="24" height="24" rx="4" stroke="#5EEAD4" stroke-width="1.5"/><path d="M6 13h4v4H6zM11 8h4v4h-4zM16 15h4v4h-4z" fill="#5EEAD4"/></svg>
+      Drishti-SR
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="is-active">Home</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><span class="nav-tag">SIH 2026</span></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy reveal">
+      <p class="eyebrow">Deep Learning · Super Resolution Mapping</p>
+      <h1>See more<br>from the same orbit.</h1>
+      <p class="lede">Drishti-SR upscales medium-resolution satellite tiles into sharper, analysis-ready imagery — no new satellite, no new tasking order.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="demo.html">Try the demo</a>
+        <a class="btn" href="#approach">How it works</a>
+      </div>
+      <div class="readout mono">
+        <span>SENTINEL-2</span> 10m/px → 2.5m/px
+        <span>TILE</span> 43QGE
+        <span>REVISIT</span> 5 DAYS
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="compare" id="hero-compare">
+        <div class="compare-layer compare-before"><canvas id="hero-canvas-lr"></canvas></div>
+        <div class="compare-layer compare-after"><canvas id="hero-canvas-hr"></canvas></div>
+        <div class="compare-handle"></div>
+        <span class="compare-label left">Medium-res input</span>
+        <span class="compare-label right">Drishti-SR output</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="problem">
+  <div class="wrap split">
+    <div class="reveal">
+      <p class="eyebrow">The problem</p>
+      <h2>Medium resolution,<br>high stakes</h2>
+    </div>
+    <div class="reveal">
+      <p>Open satellite constellations revisit most of India every few days, but at ~10 metres per pixel a narrow canal, an informal settlement, or the edge of a flooded field can vanish into a single blurred cell. Commercial high-resolution tasking exists — at a cost and a wait most state agencies and district offices can't absorb during a fast-moving event.</p>
+      <p>Drishti-SR treats this as a learning problem: train a model on the relationship between low- and high-resolution imagery, then apply it to new medium-resolution tiles to recover the detail a sharper sensor would have captured.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="n">10m</div><div class="l">SENTINEL-2 PIXEL</div></div>
+        <div class="stat"><div class="n">5d</div><div class="l">REVISIT CYCLE</div></div>
+        <div class="stat"><div class="n">4×</div><div class="l">TARGET UPSCALE</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="approach">
+  <div class="wrap">
+    <p class="eyebrow reveal">The approach</p>
+    <h2 class="reveal">How Drishti-SR works</h2>
+    <div class="pipeline">
+      <div class="pipe-step reveal">
+        <div class="idx mono">01 · INPUT</div>
+        <h3>Medium-res tile</h3>
+        <p>A multispectral tile (e.g. Sentinel-2, 10m/px) is patch-tiled and normalised across bands.</p>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step reveal">
+        <div class="idx mono">02 · EXTRACT</div>
+        <h3>Feature learning</h3>
+        <p>A convolutional / transformer backbone learns spatial and spectral patterns across the tile.</p>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step reveal">
+        <div class="idx mono">03 · REFINE</div>
+        <h3>Adversarial refinement</h3>
+        <p>A GAN-based refinement stage sharpens edges and texture while preserving spectral fidelity.</p>
+        <span class="pipe-arrow">→</span>
+      </div>
+      <div class="pipe-step reveal">
+        <div class="idx mono">04 · VALIDATE</div>
+        <h3>Scored output</h3>
+        <p>Output is scored on PSNR, SSIM, SAM and ERGAS before it's released for downstream use.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="use-cases">
+  <div class="wrap">
+    <p class="eyebrow reveal">Applications</p>
+    <h2 class="reveal">Where sharper pixels matter</h2>
+    <div class="cases">
+      <div class="case reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <h3>Agriculture</h3>
+        <p>Finer crop-boundary and canopy-health mapping from existing revisit imagery.</p>
+      </div>
+      <div class="case reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="9" width="4" height="11"/><rect x="10" y="4" width="4" height="16"/><rect x="16" y="12" width="4" height="8"/></svg>
+        <h3>Urban planning</h3>
+        <p>Better building-footprint and informal-settlement detail for municipal survey work.</p>
+      </div>
+      <div class="case reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M3 21c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg>
+        <h3>Disaster response</h3>
+        <p>Faster, sharper flood-extent and damage assessment without waiting on tasked capture.</p>
+      </div>
+      <div class="case reveal">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h13"/></svg>
+        <h3>Coastal monitoring</h3>
+        <p>Clearer shoreline and encroachment tracking along fast-changing coastal stretches.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <p class="footer-ps mono">SMART INDIA HACKATHON 2026 — Deep Learning Based Super Resolution Mapping (SRM) from Medium Resolution Satellite Imageries.</p>
+    <ul class="footer-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="team.html">Team</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const lr = document.getElementById('hero-canvas-lr');
+    const hr = document.getElementById('hero-canvas-hr');
+    if (lr && hr) {
+      const W = 640, H = 480;
+      hr.width = W; hr.height = H;
+      const hctx = hr.getContext('2d');
+      drawSampleTile(hctx, W, H, 'farmland', 7);
+      pixelateCanvas(hr, lr, 18);
+    }
+  });
+</script>
+</body>
+</html>
