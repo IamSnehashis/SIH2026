@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satellite Super-Resolution Mapping (SRM) GIS Studio</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="/viewer/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="logo-group">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="logo-title">Satellite SRM GIS Studio</h1>
+      </div>
+      <span class="badge">SIH 2026 GIS Engine</span>
+    </div>
+
+    <div class="nav-stats">
+      <div class="stat-chip">Scale Factor: <b>4× Super Resolution</b></div>
+      <div class="stat-chip">Native Res: <b>10 m → 2.5 m</b></div>
+      <div class="stat-chip">Status: <b id="system-status" style="color: #10b981;">Ready</b></div>
+    </div>
+  </header>
+
+  <!-- Application Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Controls -->
+    <aside class="sidebar">
+      
+      <!-- Scene Selection / Sample Loader -->
+      <div class="card">
+        <div class="section-title">
+          <span>📡</span> Satellite Scene Ingestion
+        </div>
+        <div class="form-group">
+          <label>Target Scene</label>
+          <select id="scene-select" class="select">
+            <option value="synthetic_sample">Synthetic 4-Band Sentinel-2 Demo</option>
+            <option value="custom_upload">Upload GeoTIFF (.tif)...</option>
+          </select>
+        </div>
+        <div class="form-group" id="upload-group" style="display: none;">
+          <input type="file" id="geotiff-file" accept=".tif,.tiff" class="input">
+        </div>
+        <button id="btn-generate-sample" class="btn btn-secondary">
+          <span>⚡</span> Re-generate Sample Scene
+        </button>
+      </div>
+
+      <!-- Super-Resolution GIS Pipeline Parameters -->
+      <div class="card">
+        <div class="section-title">
+          <span>⚙️</span> GIS Pipeline Config
+        </div>
+        <div class="form-group">
+          <label>Upscale Scale Factor</label>
+          <select id="scale-factor" class="select">
+            <option value="4">4× Super Resolution (10m → 2.5m)</option>
+            <option value="3">3× Super Resolution (OLI2MSI 30m → 10m)</option>
+            <option value="2">2× Super Resolution (20m → 10m)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tile Size / Overlap</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="tile-size" class="select">
+              <option value="128">128 × 128 px</option>
+              <option value="160">160 × 160 px</option>
+              <option value="256">256 × 256 px</option>
+            </select>
+            <select id="overlap-size" class="select">
+              <option value="16">16 px overlap</option>
+              <option value="32">32 px overlap</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mosaic Blending Method</label>
+          <select id="blend-method" class="select">
+            <option value="cosine">2D Raised Cosine (Seamless Feathering)</option>
+            <option value="linear">2D Pyramidal Linear Weighting</option>
+            <option value="gaussian">2D Gaussian Bell</option>
+            <option value="none">Hard Edge (No Blending)</option>
+          </select>
+        </div>
+        <button id="btn-run-pipeline" class="btn btn-primary">
+          <span>🚀</span> Run GIS Super-Resolution Pipeline
+        </button>
+      </div>
+
+      <!-- Map Layer & Index Toggles -->
+      <div class="card">
+        <div class="section-title">
+          <span>🗺️</span> GIS Layers & Biophysical Indices
+        </div>
+        <div class="layer-item">
+          <span>True Color RGB (Super-Resolved)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-sr-rgb" checked>
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="layer-item">
+          <span>NDVI (Vegetation Index)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-ndvi">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="layer-item">
+          <span>NDWI (Water Bodies Index)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-ndwi">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="layer-item">
+          <span>Extracted Water Vectors (GeoJSON)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-vec-water" checked>
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="layer-item">
+          <span>Extracted Forest Vectors (GeoJSON)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-vec-forest" checked>
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+        <div class="layer-item">
+          <span>Tile Footprint Grid</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="layer-tile-grid">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Pipeline Execution Logs -->
+      <div class="card">
+        <div class="section-title">
+          <span>📋</span> Processing Activity Log
+        </div>
+        <div class="log-box" id="log-console">
+          [System Initialized] GIS Engine Ready.<br>
+          Loaded CRS: EPSG:32643 (UTM 43N)<br>
+          Scale Factor: 4x<br>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Interactive Map Workspace -->
+    <main class="map-workspace">
+      <div id="map-container"></div>
+
+      <!-- Split Comparison Slider (LR vs SR) -->
+      <div class="comparison-bar">
+        <span class="comparison-label">Low-Res (10m)</span>
+        <input type="range" min="0" max="100" value="50" class="split-slider" id="split-slider">
+        <span class="comparison-label">Super-Resolved (2.5m)</span>
+      </div>
+
+      <!-- Remote Sensing Metrics Panel -->
+      <div class="metrics-panel" id="metrics-panel">
+        <div class="section-title" style="margin-bottom: 4px;">
+          <span>📊</span> RS & GIS Fidelity Metrics
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="val" id="metric-psnr">34.82 dB</div>
+            <div class="lbl">PSNR</div>
+          </div>
+          <div class="metric-card">
+            <div class="val" id="metric-ssim">0.9340</div>
+            <div class="lbl">SSIM</div>
+          </div>
+          <div class="metric-card">
+            <div class="val" id="metric-sam">1.82°</div>
+            <div class="lbl">SAM (Angle)</div>
+          </div>
+          <div class="metric-card">
+            <div class="val" id="metric-ergas">2.15</div>
+            <div class="lbl">ERGAS Error</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/viewer/app.js"></script>
+</body>
+</html>

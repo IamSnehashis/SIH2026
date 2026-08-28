@@ -1,0 +1,42 @@
+# Use this ONLY if you are not using conda/mamba.
+# NOTE: GDAL is notoriously hard to pip-install on Windows. If you hit
+# GDAL build errors, switch to environment.yml + conda/mamba instead.
+
+# GIS
+GDAL==3.7.3
+rasterio==1.3.10
+geopandas==0.14.4
+shapely==2.0.4
+pyproj==3.6.1
+fiona==1.9.6
+rasterstats==0.19.0
+rio-tiler==6.4.1
+
+# Scientific
+numpy==1.26.4
+pandas==2.2.2
+scikit-image==0.23.2
+scikit-learn==1.5.0
+matplotlib==3.9.0
+opencv-python==4.10.0.84
+
+# Deep learning
+torch==2.3.1
+torchvision==0.18.1
+torchmetrics==1.4.0.post0
+pytorch-msssim==1.0.0
+einops==0.8.0
+albumentations==1.4.10
+tifffile==2024.6.18
+tqdm==4.66.4
+pyyaml==6.0.1
+
+# Backend
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-multipart==0.0.9
+pydantic==2.7.4
+
+# Tracking
+mlflow==2.14.1
+tensorboard==2.16.2

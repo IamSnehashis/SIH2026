@@ -1,0 +1,48 @@
+name: srm-gis
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.10
+  - pip
+
+  # ---- GIS / raster stack (conda-forge handles GDAL binaries reliably) ----
+  - gdal>=3.7
+  - rasterio>=1.3
+  - geopandas>=0.14
+  - shapely
+  - pyproj
+  - fiona
+  - rasterstats
+  - rio-tiler
+
+  # ---- scientific stack ----
+  - numpy
+  - pandas
+  - scikit-image
+  - scikit-learn
+  - matplotlib
+  - opencv
+
+  # ---- deep learning (installed via pip below for exact CUDA wheel control) ----
+  - pip:
+      - torch==2.3.1
+      - torchvision==0.18.1
+      - torchmetrics
+      - pytorch-msssim
+      - einops
+      - albumentations
+      - tifffile
+      - tqdm
+      - pyyaml
+
+      # ---- backend / serving ----
+      - fastapi==0.111.0
+      - uvicorn[standard]==0.30.1
+      - python-multipart
+      - pydantic==2.7.4
+
+      # ---- experiment tracking (optional but recommended) ----
+      - mlflow
+      - tensorboard

@@ -1,3 +1,49 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# =========================
+# Environment variables / Secrets
+# =========================
+.env
+.env.*
+
+# =========================
+# Python packaging
+# =========================
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+develop-eggs/
+*.installed.cfg
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Machine Learning files
+# =========================
 # Virtual environments
 .venv/
 venv/
@@ -31,6 +77,52 @@ data/processed/
 *.pth
 *.ckpt
 *.onnx
+*.h5
+*.hdf5
+*.npy
+
+# =========================
+# Large Geospatial Data
+# =========================
+*.tif
+*.tiff
+
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+data/tiles/*
+!data/tiles/.gitkeep
+
+# =========================
+# Generated outputs
+# =========================
+outputs/*
+!outputs/.gitkeep
+
+models/*
+!models/.gitkeep
+
+# =========================
+# Node / Frontend
+# =========================
+node_modules/
+frontend/dist/
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
 
 # Generated outputs
 outputs/
